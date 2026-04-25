@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flutter Dev Cheatsheet</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #38bdf8;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    .command {
+      color: #22c55e;
+      font-family: monospace;
+    }
+    .desc {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚀 Flutter Dev Cheatsheet</h1>
+  <input type="text" id="search" placeholder="Search commands..." />
+
+  <div id="docs"></div>
+
+  <script>
+    const flutterDocs = [
+      {
+        title: "Build APK",
+        command: "flutter build apk",
+        desc: "Build a release APK for Android"
+      },
+      {
+        title: "Build App Bundle",
+        command: "flutter build appbundle",
+        desc: "Recommended for Play Store upload"
+      },
+      {
+        title: "Run App",
+        command: "flutter run",
+        desc: "Run app on connected device/emulator"
+      },
+      {
+        title: "Hot Reload",
+        command: "r (in terminal)",
+        desc: "Quickly reload UI without losing state"
+      },
+      {
+        title: "Clean Project",
+        command: "flutter clean",
+        desc: "Remove build cache"
+      },
+      {
+        title: "Get Packages",
+        command: "flutter pub get",
+        desc: "Install dependencies"
+      },
+      {
+        title: "Upgrade Flutter",
+        command: "flutter upgrade",
+        desc: "Update Flutter SDK"
+      },
+      {
+        title: "Rename App",
+        command: "flutter pub run rename",
+        desc: "Rename app package and display name"
+      },
+      {
+        title: "Generate Splash Screen",
+        command: "flutter pub run flutter_native_splash:create",
+        desc: "Generate splash screen automatically"
+      },
+      {
+        title: "Generate App Icons",
+        command: "flutter pub run flutter_launcher_icons",
+        desc: "Create app icons for Android/iOS"
+      },
+      {
+        title: "Check Devices",
+        command: "flutter devices",
+        desc: "List connected devices"
+      },
+      {
+        title: "Doctor Check",
+        command: "flutter doctor",
+        desc: "Check Flutter environment setup"
+      }
+    ];
+
+    const docsContainer = document.getElementById("docs");
+    const searchInput = document.getElementById("search");
+
+    function renderDocs(filter = "") {
+      docsContainer.innerHTML = "";
+
+      const filtered = flutterDocs.filter(doc =>
+        doc.title.toLowerCase().includes(filter.toLowerCase()) ||
+        doc.command.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      filtered.forEach(doc => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${doc.title}</h3>
+          <p class="command">${doc.command}</p>
+          <p class="desc">${doc.desc}</p>
+        `;
+        docsContainer.appendChild(div);
+      });
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      renderDocs(e.target.value);
+    });
+
+    renderDocs();
+  </script>
+
+</body>
+</html>
