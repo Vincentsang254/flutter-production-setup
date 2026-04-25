@@ -10,9 +10,11 @@
       color: #e2e8f0;
       padding: 20px;
     }
+
     h1 {
       color: #38bdf8;
     }
+
     input {
       width: 100%;
       padding: 10px;
@@ -21,18 +23,47 @@
       border: none;
       outline: none;
     }
+
+    .section {
+      margin-top: 25px;
+    }
+
+    .section h2 {
+      color: #facc15;
+    }
+
     .card {
       background: #1e293b;
       padding: 15px;
       margin-bottom: 10px;
       border-radius: 10px;
+      position: relative;
     }
+
     .command {
       color: #22c55e;
       font-family: monospace;
+      white-space: pre-wrap;
     }
+
     .desc {
       color: #94a3b8;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #38bdf8;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .copy-btn:hover {
+      background: #0ea5e9;
     }
   </style>
 </head>
@@ -45,89 +76,164 @@
 
   <script>
     const flutterDocs = [
+      // ===== SETUP =====
       {
-        title: "Build APK",
-        command: "flutter build apk",
-        desc: "Build a release APK for Android"
+        category: "Setup",
+        title: "Generate Keystore",
+        command: "keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload",
+        desc: "Create a keystore for signing your app"
       },
       {
+        category: "Setup",
+        title: "Key Properties File",
+        command: "android/key.properties",
+        desc: "Store keystore credentials securely"
+      },
+      {
+        category: "Setup",
+        title: "Key Properties Example",
+        command: `storePassword=your-password
+keyPassword=your-password
+keyAlias=upload
+storeFile=upload-keystore.jks`,
+        desc: "Used by Gradle for signing"
+      },
+      {
+        category: "Setup",
+        title: "Configure Signing (build.gradle)",
+        command: `android {
+  signingConfigs {
+    release {
+      keyAlias keystoreProperties['keyAlias']
+      keyPassword keystoreProperties['keyPassword']
+      storeFile file(keystoreProperties['storeFile'])
+      storePassword keystoreProperties['storePassword']
+    }
+  }
+  buildTypes {
+    release {
+      signingConfig signingConfigs.release
+      minifyEnabled true
+      shrinkResources true
+    }
+  }
+}`,
+        desc: "Enable release signing"
+      },
+
+      // ===== BUILD =====
+      {
+        category: "Build",
+        title: "Build APK",
+        command: "flutter build apk --release",
+        desc: "Build signed APK"
+      },
+      {
+        category: "Build",
         title: "Build App Bundle",
         command: "flutter build appbundle",
-        desc: "Recommended for Play Store upload"
+        desc: "Recommended for Play Store"
       },
       {
-        title: "Run App",
-        command: "flutter run",
-        desc: "Run app on connected device/emulator"
-      },
-      {
-        title: "Hot Reload",
-        command: "r (in terminal)",
-        desc: "Quickly reload UI without losing state"
-      },
-      {
+        category: "Build",
         title: "Clean Project",
         command: "flutter clean",
-        desc: "Remove build cache"
+        desc: "Clear build cache"
       },
       {
+        category: "Build",
         title: "Get Packages",
         command: "flutter pub get",
         desc: "Install dependencies"
       },
+
+      // ===== TOOLS =====
       {
-        title: "Upgrade Flutter",
-        command: "flutter upgrade",
-        desc: "Update Flutter SDK"
-      },
-      {
+        category: "Tools",
         title: "Rename App",
         command: "flutter pub run rename",
-        desc: "Rename app package and display name"
+        desc: "Rename package & app name"
       },
       {
+        category: "Tools",
         title: "Generate Splash Screen",
         command: "flutter pub run flutter_native_splash:create",
-        desc: "Generate splash screen automatically"
+        desc: "Auto generate splash screen"
       },
       {
+        category: "Tools",
         title: "Generate App Icons",
         command: "flutter pub run flutter_launcher_icons",
-        desc: "Create app icons for Android/iOS"
+        desc: "Generate app icons"
       },
       {
-        title: "Check Devices",
-        command: "flutter devices",
-        desc: "List connected devices"
-      },
-      {
+        category: "Tools",
         title: "Doctor Check",
         command: "flutter doctor",
-        desc: "Check Flutter environment setup"
+        desc: "Check environment"
+      },
+      {
+        category: "Tools",
+        title: "Devices",
+        command: "flutter devices",
+        desc: "List devices"
+      },
+      {
+        category: "Tools",
+        title: "Run App",
+        command: "flutter run",
+        desc: "Run on device"
       }
     ];
 
     const docsContainer = document.getElementById("docs");
     const searchInput = document.getElementById("search");
 
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert("Copied!");
+    }
+
     function renderDocs(filter = "") {
       docsContainer.innerHTML = "";
 
-      const filtered = flutterDocs.filter(doc =>
-        doc.title.toLowerCase().includes(filter.toLowerCase()) ||
-        doc.command.toLowerCase().includes(filter.toLowerCase())
-      );
+      const grouped = {};
 
-      filtered.forEach(doc => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <h3>${doc.title}</h3>
-          <p class="command">${doc.command}</p>
-          <p class="desc">${doc.desc}</p>
-        `;
-        docsContainer.appendChild(div);
+      flutterDocs.forEach(doc => {
+        if (
+          doc.title.toLowerCase().includes(filter.toLowerCase()) ||
+          doc.command.toLowerCase().includes(filter.toLowerCase())
+        ) {
+          if (!grouped[doc.category]) grouped[doc.category] = [];
+          grouped[doc.category].push(doc);
+        }
       });
+
+      for (let category in grouped) {
+        const section = document.createElement("div");
+        section.className = "section";
+
+        section.innerHTML = `<h2>${category}</h2>`;
+
+        grouped[category].forEach(doc => {
+          const div = document.createElement("div");
+          div.className = "card";
+
+          div.innerHTML = `
+            <button class="copy-btn">Copy</button>
+            <h3>${doc.title}</h3>
+            <p class="command">${doc.command}</p>
+            <p class="desc">${doc.desc}</p>
+          `;
+
+          div.querySelector(".copy-btn").onclick = () =>
+            copyToClipboard(doc.command);
+
+          section.appendChild(div);
+        });
+
+        docsContainer.appendChild(section);
+      }
     }
 
     searchInput.addEventListener("input", (e) => {
