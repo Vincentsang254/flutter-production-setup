@@ -8,58 +8,70 @@
       font-family: Arial, sans-serif;
       background: #0f172a;
       color: #e2e8f0;
-      padding: 20px;
+      padding: 24px;
+      font-size: 16px;
     }
 
     h1 {
       color: #38bdf8;
+      font-size: 28px;
     }
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-bottom: 20px;
       border-radius: 8px;
       border: none;
       outline: none;
+      font-size: 16px;
     }
 
     .section {
-      margin-top: 25px;
+      margin-top: 30px;
     }
 
     .section h2 {
       color: #facc15;
+      font-size: 22px;
     }
 
     .card {
       background: #1e293b;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 12px;
+      border-radius: 12px;
       position: relative;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
     }
 
     .command {
       color: #22c55e;
       font-family: monospace;
+      font-size: 15px;
       white-space: pre-wrap;
     }
 
     .desc {
       color: #94a3b8;
+      font-size: 14px;
+      margin-top: 6px;
     }
 
     .copy-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 12px;
+      right: 12px;
       background: #38bdf8;
       border: none;
-      padding: 5px 10px;
+      padding: 6px 12px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
     }
 
     .copy-btn:hover {
@@ -69,7 +81,7 @@
 </head>
 <body>
 
-  <h1>🚀 Flutter Dev Cheatsheet</h1>
+  <h1>Flutter Dev Cheatsheet</h1>
   <input type="text" id="search" placeholder="Search commands..." />
 
   <div id="docs"></div>
@@ -78,6 +90,24 @@
     const flutterDocs = [
 
       // ===== SETUP =====
+      {
+        category: "Setup",
+        title: "Create App (Basic)",
+        command: "flutter create my_app",
+        desc: "Create a default Flutter project"
+      },
+      {
+        category: "Setup",
+        title: "Create App (Package + Platforms)",
+        command: "flutter create --org com.example --platforms android,ios codenest",
+        desc: "Create app with package name and selected platforms"
+      },
+      {
+        category: "Setup",
+        title: "Create App (Android Only)",
+        command: "flutter create --platforms android my_app",
+        desc: "Create Android-only project"
+      },
       {
         category: "Setup",
         title: "Generate Keystore",
@@ -106,7 +136,7 @@ storeFile=upload-keystore.jks`,
         desc: "Move keystore into app folder"
       },
 
-      // ===== SIGNING (KTS) =====
+      // ===== SIGNING =====
       {
         category: "Signing",
         title: "Import Properties (KTS)",
@@ -116,7 +146,7 @@ import java.io.FileInputStream`,
       },
       {
         category: "Signing",
-        title: "Load key.properties (KTS)",
+        title: "Load key.properties",
         command: `val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 
@@ -127,7 +157,7 @@ if (keystorePropertiesFile.exists()) {
       },
       {
         category: "Signing",
-        title: "Signing Config (KTS)",
+        title: "Signing Config",
         command: `signingConfigs {
     create("release") {
         keyAlias = keystoreProperties["keyAlias"] as String
@@ -140,7 +170,7 @@ if (keystorePropertiesFile.exists()) {
       },
       {
         category: "Signing",
-        title: "Release Build Config (KTS)",
+        title: "Release Build Config",
         command: `buildTypes {
     getByName("release") {
         signingConfig = signingConfigs.getByName("release")
@@ -212,13 +242,13 @@ if (keystorePropertiesFile.exists()) {
       // ===== WORKFLOW =====
       {
         category: "Workflow",
-        title: "Full Setup (Icons + Splash)",
+        title: "Full Setup",
         command: `flutter pub get
 flutter pub run flutter_launcher_icons:main
 dart run flutter_native_splash:create
 flutter clean
 flutter run`,
-        desc: "Run everything at once"
+        desc: "Run full setup"
       },
 
       // ===== TOOLS =====
