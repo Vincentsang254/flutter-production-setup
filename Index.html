@@ -76,6 +76,7 @@
 
   <script>
     const flutterDocs = [
+
       // ===== SETUP =====
       {
         category: "Setup",
@@ -147,25 +148,51 @@ storeFile=upload-keystore.jks`,
         desc: "Install dependencies"
       },
 
-      // ===== TOOLS =====
+      // ===== BRANDING =====
       {
-        category: "Tools",
-        title: "Rename App",
-        command: "flutter pub run rename",
-        desc: "Rename package & app name"
+        category: "Branding",
+        title: "Set App Name (Android & iOS)",
+        command: 'flutter pub run rename setAppName --targets ios,android --value "YourAppName"',
+        desc: "Change app display name"
       },
       {
-        category: "Tools",
-        title: "Generate Splash Screen",
-        command: "flutter pub run flutter_native_splash:create",
-        desc: "Auto generate splash screen"
+        category: "Branding",
+        title: "Set Bundle ID (Android & iOS)",
+        command: 'flutter pub run rename setBundleId --targets ios,android --value "com.yourname.app"',
+        desc: "Set package/bundle identifier"
       },
       {
-        category: "Tools",
-        title: "Generate App Icons",
-        command: "flutter pub run flutter_launcher_icons",
+        category: "Branding",
+        title: "Set Bundle ID (Android Only)",
+        command: 'flutter pub run rename setBundleId --targets android --value "com.yourname.app"',
+        desc: "Change Android package name"
+      },
+      {
+        category: "Branding",
+        title: "Set App Name (Android Only)",
+        command: 'flutter pub run rename setAppName --targets android --value "YourAppName"',
+        desc: "Change Android app name"
+      },
+      {
+        category: "Branding",
+        title: "Generate Launcher Icons",
+        command: "flutter pub run flutter_launcher_icons:main",
         desc: "Generate app icons"
       },
+      {
+        category: "Branding",
+        title: "Create Splash Screen",
+        command: "dart run flutter_native_splash:create",
+        desc: "Generate splash screen"
+      },
+      {
+        category: "Branding",
+        title: "Remove Splash Screen",
+        command: "dart run flutter_native_splash:remove",
+        desc: "Remove splash screen"
+      },
+
+      // ===== TOOLS =====
       {
         category: "Tools",
         title: "Doctor Check",
@@ -182,16 +209,17 @@ storeFile=upload-keystore.jks`,
         category: "Tools",
         title: "Run App",
         command: "flutter run",
-        desc: "Run on device"
+        desc: "Run app on device"
       }
     ];
 
     const docsContainer = document.getElementById("docs");
     const searchInput = document.getElementById("search");
 
-    function copyToClipboard(text) {
+    function copyToClipboard(text, btn) {
       navigator.clipboard.writeText(text);
-      alert("Copied!");
+      btn.innerText = "Copied!";
+      setTimeout(() => (btn.innerText = "Copy"), 1500);
     }
 
     function renderDocs(filter = "") {
@@ -226,8 +254,8 @@ storeFile=upload-keystore.jks`,
             <p class="desc">${doc.desc}</p>
           `;
 
-          div.querySelector(".copy-btn").onclick = () =>
-            copyToClipboard(doc.command);
+          div.querySelector(".copy-btn").onclick = (e) =>
+            copyToClipboard(doc.command, e.target);
 
           section.appendChild(div);
         });
