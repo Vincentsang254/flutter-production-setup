@@ -82,13 +82,13 @@
         category: "Setup",
         title: "Generate Keystore",
         command: "keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload",
-        desc: "Create a keystore for signing your app"
+        desc: "Create keystore for signing"
       },
       {
         category: "Setup",
         title: "Key Properties File",
         command: "android/key.properties",
-        desc: "Store keystore credentials securely"
+        desc: "Create file for storing credentials"
       },
       {
         category: "Setup",
@@ -101,25 +101,54 @@ storeFile=upload-keystore.jks`,
       },
       {
         category: "Setup",
-        title: "Configure Signing (build.gradle)",
-        command: `android {
-  signingConfigs {
-    release {
-      keyAlias keystoreProperties['keyAlias']
-      keyPassword keystoreProperties['keyPassword']
-      storeFile file(keystoreProperties['storeFile'])
-      storePassword keystoreProperties['storePassword']
-    }
-  }
-  buildTypes {
-    release {
-      signingConfig signingConfigs.release
-      minifyEnabled true
-      shrinkResources true
-    }
-  }
+        title: "Place Keystore File",
+        command: "android/app/upload-keystore.jks",
+        desc: "Move keystore into app folder"
+      },
+
+      // ===== SIGNING (KTS) =====
+      {
+        category: "Signing",
+        title: "Import Properties (KTS)",
+        command: `import java.util.Properties
+import java.io.FileInputStream`,
+        desc: "Add at top of build.gradle.kts"
+      },
+      {
+        category: "Signing",
+        title: "Load key.properties (KTS)",
+        command: `val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }`,
-        desc: "Enable release signing"
+        desc: "Load credentials before android block"
+      },
+      {
+        category: "Signing",
+        title: "Signing Config (KTS)",
+        command: `signingConfigs {
+    create("release") {
+        keyAlias = keystoreProperties["keyAlias"] as String
+        keyPassword = keystoreProperties["keyPassword"] as String
+        storeFile = file(keystoreProperties["storeFile"] as String)
+        storePassword = keystoreProperties["storePassword"] as String
+    }
+}`,
+        desc: "Configure release signing"
+      },
+      {
+        category: "Signing",
+        title: "Release Build Config (KTS)",
+        command: `buildTypes {
+    getByName("release") {
+        signingConfig = signingConfigs.getByName("release")
+        isMinifyEnabled = true
+        isShrinkResources = true
+    }
+}`,
+        desc: "Enable optimized release build"
       },
 
       // ===== BUILD =====
@@ -127,7 +156,7 @@ storeFile=upload-keystore.jks`,
         category: "Build",
         title: "Build APK",
         command: "flutter build apk --release",
-        desc: "Build signed APK"
+        desc: "Generate APK"
       },
       {
         category: "Build",
@@ -139,7 +168,7 @@ storeFile=upload-keystore.jks`,
         category: "Build",
         title: "Clean Project",
         command: "flutter clean",
-        desc: "Clear build cache"
+        desc: "Clear cache"
       },
       {
         category: "Build",
@@ -151,33 +180,21 @@ storeFile=upload-keystore.jks`,
       // ===== BRANDING =====
       {
         category: "Branding",
-        title: "Set App Name (Android & iOS)",
+        title: "Set App Name",
         command: 'flutter pub run rename setAppName --targets ios,android --value "YourAppName"',
-        desc: "Change app display name"
+        desc: "Change app name"
       },
       {
         category: "Branding",
-        title: "Set Bundle ID (Android & iOS)",
+        title: "Set Bundle ID",
         command: 'flutter pub run rename setBundleId --targets ios,android --value "com.yourname.app"',
-        desc: "Set package/bundle identifier"
-      },
-      {
-        category: "Branding",
-        title: "Set Bundle ID (Android Only)",
-        command: 'flutter pub run rename setBundleId --targets android --value "com.yourname.app"',
-        desc: "Change Android package name"
-      },
-      {
-        category: "Branding",
-        title: "Set App Name (Android Only)",
-        command: 'flutter pub run rename setAppName --targets android --value "YourAppName"',
-        desc: "Change Android app name"
+        desc: "Set package name"
       },
       {
         category: "Branding",
         title: "Generate Launcher Icons",
         command: "flutter pub run flutter_launcher_icons:main",
-        desc: "Generate app icons"
+        desc: "Generate icons"
       },
       {
         category: "Branding",
@@ -189,7 +206,19 @@ storeFile=upload-keystore.jks`,
         category: "Branding",
         title: "Remove Splash Screen",
         command: "dart run flutter_native_splash:remove",
-        desc: "Remove splash screen"
+        desc: "Remove splash"
+      },
+
+      // ===== WORKFLOW =====
+      {
+        category: "Workflow",
+        title: "Full Setup (Icons + Splash)",
+        command: `flutter pub get
+flutter pub run flutter_launcher_icons:main
+dart run flutter_native_splash:create
+flutter clean
+flutter run`,
+        desc: "Run everything at once"
       },
 
       // ===== TOOLS =====
@@ -197,7 +226,7 @@ storeFile=upload-keystore.jks`,
         category: "Tools",
         title: "Doctor Check",
         command: "flutter doctor",
-        desc: "Check environment"
+        desc: "Check setup"
       },
       {
         category: "Tools",
@@ -209,7 +238,7 @@ storeFile=upload-keystore.jks`,
         category: "Tools",
         title: "Run App",
         command: "flutter run",
-        desc: "Run app on device"
+        desc: "Run on device"
       }
     ];
 
@@ -224,7 +253,6 @@ storeFile=upload-keystore.jks`,
 
     function renderDocs(filter = "") {
       docsContainer.innerHTML = "";
-
       const grouped = {};
 
       flutterDocs.forEach(doc => {
@@ -240,7 +268,6 @@ storeFile=upload-keystore.jks`,
       for (let category in grouped) {
         const section = document.createElement("div");
         section.className = "section";
-
         section.innerHTML = `<h2>${category}</h2>`;
 
         grouped[category].forEach(doc => {
